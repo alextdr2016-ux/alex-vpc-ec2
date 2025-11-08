@@ -1,3 +1,19 @@
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 6.0"
+    }
+  }
+}
+
+provider "aws" {
+  region = var.aws_region
+
+  skip_credentials_validation = true
+  skip_metadata_api_check     = true
+}
+
 resource "aws_vpc" "alex" {
   cidr_block       = var.vpc_cidr
   instance_tenancy = "default"
