@@ -19,25 +19,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Clone codul din GitHub
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Step 2: Instalează Terraform
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
         with:
           terraform_version: ${{ env.TF_VERSION }}
 
-      # Step 3: Inițializează Terraform
       - name: Terraform Init
         run: terraform init -backend=false
 
-      # Step 4: Validează sintaxa
       - name: Terraform Validate
         run: terraform validate
 
-      # Step 5: Formatul codului
       - name: Terraform Format Check
         run: terraform fmt -check -recursive
 
@@ -46,6 +41,10 @@ jobs:
     name: Terraform Plan
     runs-on: ubuntu-latest
     needs: validate
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: ${{ env.AWS_REGION }}
 
     steps:
       - name: Checkout code
@@ -55,13 +54,6 @@ jobs:
         uses: hashicorp/setup-terraform@v2
         with:
           terraform_version: ${{ env.TF_VERSION }}
-
-      - name: Configure AWS credentials
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: ${{ env.AWS_REGION }}
-        run: echo "AWS credentials configured"
 
       - name: Terraform Init
         run: terraform init
@@ -81,6 +73,10 @@ jobs:
     runs-on: ubuntu-latest
     needs: plan
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: ${{ env.AWS_REGION }}
 
     steps:
       - name: Checkout code
@@ -90,12 +86,6 @@ jobs:
         uses: hashicorp/setup-terraform@v2
         with:
           terraform_version: ${{ env.TF_VERSION }}
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v2
-        with:
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-          aws-region: ${{ env.AWS_REGION }}
 
       - name: Terraform Init
         run: terraform init
