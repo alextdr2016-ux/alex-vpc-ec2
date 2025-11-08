@@ -13,7 +13,7 @@ provider "aws" {
   skip_credentials_validation = true
   skip_metadata_api_check     = true
 }
-
+#test comment
 resource "aws_vpc" "alex" {
   cidr_block       = var.vpc_cidr
   instance_tenancy = "default"
