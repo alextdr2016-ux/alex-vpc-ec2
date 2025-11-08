@@ -13,3 +13,5 @@ output "instance_public_ip" {
   value       = "aws_instance.alex_instance.public_ip"
   description = "Adresa IP publică a instanței EC2 alex"
 }
+
+
